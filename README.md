@@ -4,9 +4,9 @@ A helper CLI tool to determine which computer you're currently on. Often in ones
 
 ```bash
 case "$(uname -s)" in
-Linux*) command_on_linux ;;
-Darwin*) command_on_mac ;;
-*) echo 'unknown...' ;;
+  Linux) command_on_linux ;;
+  Darwin) command_on_mac ;;
+  *) echo 'unknown...' ;;
 esac
 ```
 
@@ -22,11 +22,11 @@ So, `on_machine` generates a unique-enough fingerprint of your system (which you
 
 ```bash
 case "$(on_machine)" in
-linux_arch_*) command_on_arch ;;
-linux_ubuntu_*) command_on_ubuntu ;;
-android_termux_*) command_on_termux ;;
-windows_*) command_on_wsl ;;
-mac_*) command_on_mac ;;
+  linux_arch_*) command_on_arch ;;
+  linux_ubuntu_*) command_on_ubuntu ;;
+  android_termux_*) command_on_termux ;;
+  windows_*) command_on_wsl ;;
+  mac_*) command_on_mac ;;
 esac
 ```
 
