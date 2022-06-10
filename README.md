@@ -38,7 +38,7 @@ Using `go install` to put it on your `$GOBIN`:
 
 `go install github.com/seanbreckenridge/on_machine/cmd/on_machine@latest`
 
-I recommend you have both `uname` and `lsb-release` installed if possible on `linux`, that makes distrobution detection much nicer. Otherwise, this defaults to the `golang` `runtime` module defaults
+I recommend you have both `uname` and `lsb_release` installed if possible on `linux`, that makes distrobution detection much nicer. Otherwise, this defaults to the `golang` `runtime` module defaults
 
 To manually build:
 
