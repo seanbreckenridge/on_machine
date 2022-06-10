@@ -15,7 +15,7 @@ esac
 This is fine if you're always going to have two installs, but as you add more it starts to get more and more complicated. For example, I have:
 
 - multiple linux installs (for example one on `Ubuntu` and another on `Arch`)
-- [termux](https://termux.com/) on your phone
+- [termux](https://termux.com/) on my phone
 - [`wsl`](https://docs.microsoft.com/en-us/windows/wsl/install) will also return `Linux`, when you likely want to do something custom on windows
 
 So, `on_machine` generates a unique-enough fingerprint of your system (which you can tune to as simple or complicated as you want), so you can do:
