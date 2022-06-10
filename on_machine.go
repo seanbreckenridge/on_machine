@@ -35,6 +35,9 @@ func GetOS() string {
 			return "freemint"
 		}
 		if Uname.name == "Linux" || strings.HasPrefix(Uname.name, "GNU") {
+			if onTermux() {
+				return "android"
+			}
 			return "linux"
 		}
 		if Uname.name == "DragonFly" || Uname.name == "Bitrig" || strings.HasSuffix(Uname.name, "BSD") {
@@ -59,6 +62,17 @@ func commandExists(cmd string) bool {
 	return err == nil
 }
 
+var OnTermux *bool = nil
+
+func onTermux() bool {
+	if OnTermux != nil {
+		return *OnTermux
+	}
+	onTermux := commandExists("termux-setup-storage") && dirExists("/system/app/") && dirExists("/system/priv-app/")
+	OnTermux = &onTermux
+	return onTermux
+}
+
 func GetDistro() (distro string) {
 	SetUnameShell()
 	SetLsbReleaseShell()
@@ -68,8 +82,8 @@ func GetDistro() (distro string) {
 	} else if Uname != nil {
 		distro = Uname.version
 	}
-	if commandExists("termux-setup-storage") && dirExists("/system/app/") && dirExists("/system/priv-app/") {
-		distro = "termux"
+	if onTermux() {
+		return "termux"
 	}
 	return
 }
