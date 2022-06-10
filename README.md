@@ -30,7 +30,7 @@ mac_*) command_on_mac ;;
 esac
 ```
 
-This borrows a lot of ideas from tools like [`neofetch`](https://github.com/dylanaraps/neofetch) to figure out what operating system/distribution/window manager one is using
+This borrows a lot of ideas from tools like [`neofetch`](https://github.com/dylanaraps/neofetch) to figure out what operating system/distribution one is using
 
 ### Install
 
