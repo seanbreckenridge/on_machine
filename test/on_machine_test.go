@@ -15,6 +15,10 @@ func TestPatterns(t *testing.T) {
 	if res != "" {
 		t.Errorf("Expected empty output, got '%s'\n", res)
 	}
+	res = on_machine.ReplaceFields("%o/")
+	if res != on_machine.GetOS()+"/" {
+		t.Errorf("Expected '%s/', got res", on_machine.GetOS())
+	}
 	res = on_machine.ReplaceFields("s")
 	if res != "s" {
 		t.Errorf("Expected 's' got '%s'\n", res)

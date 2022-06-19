@@ -29,6 +29,14 @@ func replaceField(pat string) (string, error) {
 		return "", errors.New("Did not match format specifier")
 	}
 }
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func ReplaceFields(pattern string) string {
 	var sb strings.Builder
 	// if length 0 or 1, returns pattern
@@ -36,8 +44,10 @@ func ReplaceFields(pattern string) string {
 		return pattern
 	}
 	i := 0
-	for i < len(pattern)-1 {
-		chunk := pattern[i : i+2]
+	for i < len(pattern) {
+		// make sure we don't go out of bounds
+		endIndex := min(i+2, len(pattern))
+		chunk := pattern[i:endIndex]
 		matched, err := replaceField(chunk)
 		if err == nil {
 			// if matched a format specifier, increment by two
@@ -46,10 +56,6 @@ func ReplaceFields(pattern string) string {
 		} else {
 			sb.WriteString(pattern[i : i+1])
 			i += 1
-			// if last slice of two characters didn't match, skip the last character
-			if i == len(pattern)-1 {
-				sb.WriteString(pattern[i : i+1])
-			}
 		}
 	}
 	return sb.String()

@@ -60,7 +60,7 @@ Tool to determine which operating system/machine you're on.
 PATTERN is a printf-styled format string, supporting the following sequences:
 
 %o - Operating System (using uname)
-%d - Distro (using lsb_release)
+%d - Distro (using lsb_release, falling back to uname if lsb_release isnt available)
 %h - Hostname (name of the computer)
 %a - Arch (detected by golang)
 %O - Golang OS (unmodified golang detected operating system)
