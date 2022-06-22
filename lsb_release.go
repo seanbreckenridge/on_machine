@@ -5,30 +5,23 @@ import (
 	"strings"
 )
 
-var LsbRelease *string = nil
-
-func LsbReleaseShell() (*string, error) {
-	if LsbRelease != nil {
-		return LsbRelease, nil
-	}
-	path, err := exec.LookPath("lsb_release")
-	if err != nil {
+func LsbReleaseSh() (*string, error) {
+	result, err, _ := Cache.Memoize("lsb_release", func() (interface{}, error) {
+		path, err := exec.LookPath("lsb_release")
+		if err != nil {
+			return nil, err
+		}
+		cmd := exec.Command(path, "-si")
+		out, err := cmd.Output()
+		if err != nil {
+			return nil, err
+		}
+		outStr := strings.ToLower(strings.TrimSpace(string(out)))
+		return &outStr, nil
+	})
+	if lsbRes, ok := result.(*string); ok {
+		return lsbRes, nil
+	} else {
 		return nil, err
 	}
-	cmd := exec.Command(path, "-si")
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
-	outStr := strings.ToLower(strings.TrimSpace(string(out)))
-	return &outStr, nil
-}
-
-func SetLsbReleaseShell() error {
-	lsbRelease, err := LsbReleaseShell()
-	if err != nil {
-		return err
-	}
-	LsbRelease = lsbRelease
-	return nil
 }

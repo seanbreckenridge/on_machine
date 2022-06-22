@@ -2,7 +2,6 @@ package on_machine
 
 import (
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 )
@@ -16,11 +15,11 @@ func GetGolangArch() string {
 }
 
 func GetOS() string {
-	SetUnameShell()
 	os := GetGolangOS()
-	if Uname != nil {
+	uname, _ := UnameSh()
+	if uname != nil {
 		// ported from neofetch
-		switch Uname.name {
+		switch uname.name {
 		case "Darwin":
 			return "mac"
 		case "SunOS":
@@ -34,80 +33,57 @@ func GetOS() string {
 		case "FreeMiNT":
 			return "freemint"
 		}
-		if Uname.name == "Linux" || strings.HasPrefix(Uname.name, "GNU") {
-			if onTermux() {
+		if uname.name == "Linux" || strings.HasPrefix(uname.name, "GNU") {
+			if OnTermux() {
 				return "android"
 			}
 			return "linux"
 		}
-		if Uname.name == "DragonFly" || Uname.name == "Bitrig" || strings.HasSuffix(Uname.name, "BSD") {
+		if uname.name == "DragonFly" || uname.name == "Bitrig" || strings.HasSuffix(uname.name, "BSD") {
 			return "bsd"
 		}
-		if strings.HasPrefix(Uname.name, "CYGWIN") || strings.HasPrefix(Uname.name, "MSYS") || strings.HasPrefix(Uname.name, "MINGW") {
+		if strings.HasPrefix(uname.name, "CYGWIN") || strings.HasPrefix(uname.name, "MSYS") || strings.HasPrefix(uname.name, "MINGW") {
 			return "windows"
 		}
 	}
 	return os
 }
 
-// true if directory exists
-func dirExists(path string) bool {
-	stat, err := os.Stat(path)
-	return err == nil && stat.IsDir()
-}
-
-// whether or not the user has a command on their $PATH
-func commandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
-}
-
-var OnTermux *bool = nil
-
-func onTermux() bool {
-	if OnTermux != nil {
-		return *OnTermux
-	}
-	onTermux := commandExists("termux-setup-storage") && dirExists("/system/app/") && dirExists("/system/priv-app/")
-	OnTermux = &onTermux
-	return onTermux
-}
-
 func GetDistro() (distro string) {
-	SetUnameShell()
-	SetLsbReleaseShell()
+	uname, _ := UnameSh()
+	lsbRelease, _ := LsbReleaseSh()
 	distro = "unknown"
-	if LsbRelease != nil {
-		distro = *LsbRelease
-	} else if Uname != nil {
-		distro = Uname.version
+	if lsbRelease != nil {
+		distro = *lsbRelease
+	} else if uname != nil {
+		distro = uname.version
 	}
-	if onTermux() {
+	if OnTermux() {
 		return "termux"
 	}
 	return
 }
 
-var Hostname *string = nil
-
-func SetHostname() (*string, error) {
-	if Hostname != nil {
-		return Hostname, nil
-	}
-	name, err := os.Hostname()
-	if err != nil {
+func Hostname() (*string, error) {
+	res, err, _ := Cache.Memoize("hostname", func() (interface{}, error) {
+		name, err := os.Hostname()
+		if err != nil {
+			return nil, err
+		}
+		return name, nil
+	})
+	if castRes, ok := res.(string); ok {
+		return &castRes, nil
+	} else {
 		return nil, err
 	}
-	Hostname = &name
-	return Hostname, nil
 }
 
 func GetHostname() string {
-	hostname, err := SetHostname()
-	if err != nil {
-		// use localhost as 'unknown value'
-		return "localhost"
+	host, err := Hostname()
+	if err == nil {
+		return *host
 	} else {
-		return *hostname
+		return ""
 	}
 }
