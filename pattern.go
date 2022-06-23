@@ -30,13 +30,6 @@ func replaceField(pat string) (string, error) {
 	}
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func ReplaceFields(pattern string) string {
 	var sb strings.Builder
 	// if length 0 or 1, returns pattern
