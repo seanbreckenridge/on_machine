@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/seanbreckenridge/on_machine"
@@ -90,8 +91,7 @@ Options:
 	case "match":
 		command = MATCH_PATHS
 	default:
-		fmt.Printf("Unknown command '%s'. Provide either 'print' or 'match'\n", *cmd)
-		os.Exit(1)
+		return nil, errors.New(fmt.Sprintf("Unknown command '%s'. Provide either 'print' or 'match'\n", *cmd))
 	}
 	// set pattern
 	switch flag.NArg() {
@@ -113,8 +113,7 @@ Options:
 		matchBase := string(*base)
 		if matchBase != "" {
 			if !on_machine.DirExists(matchBase) {
-				fmt.Fprintf(os.Stderr, "Directory doesnt exist: '%s'\n", matchBase)
-				os.Exit(1)
+				return nil, errors.New(fmt.Sprintf("Directory doesnt exist: '%s'\n", matchBase))
 			}
 		}
 		// handle delimiter flag
