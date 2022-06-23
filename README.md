@@ -102,7 +102,7 @@ Options:
 
 This can be thought of as an alternative to the above, its a different way to figure out what code to run on different machines, by placing scripts in a particular directory structure
 
-You can manually do case/regex statements in bash (and often that is enough), but in some cases that can become complicated. I use this match [background processes](https://github.com/seanbreckenridge/bgproc) scripts on different machines -- to figure out which bash scripts to run. Those are organized like:
+You can manually do case/regex statements in bash (and often that is enough), but in some cases that can become complicated. I use this to match [background processes](https://github.com/seanbreckenridge/bgproc) scripts on different machines -- to figure out which bash scripts to run. Those are organized like:
 
 ```
 matching_examples/dir_based
