@@ -68,11 +68,11 @@ PATTERN is a printf-styled format string, supporting the following sequences:
 By default, this uses '%o_%d_%h'
 ```
 
-### `match `
+### match
 
 This can be thought of as an alternative to the above, its a different way to figure out what code to run on different machines, by placing scripts in a particular directory structure
 
-You can manually do case/regex statements in bash (and often that is enough), but in some cases that can become complicated. For example, I use this for my [background processes](https://github.com/seanbreckenridge/bgproc), as I organize each job as a small bash script. To figure out which bash scripts to run, I organize my scripts into a directory like:
+You can manually do case/regex statements in bash (and often that is enough), but in some cases that can become complicated. I use this match [background processes](https://github.com/seanbreckenridge/bgproc) scripts on different machines -- to figure out which bash scripts to run. Those are organized like:
 
 ```
 matching_examples/dir_based
@@ -106,15 +106,29 @@ $ on_machine -cmd match -base ./matching_examples/dir_based '%o/%d/%h'
 
 Note: `all` is like a `*`, its always matched -- so that would be where I store shared jobs.
 
-Then, I could use `find` to loop over each directory, searching with `-maxdepth 1` to find all my jobs that match my current OS/distro:
+[`bgproc_on_machine`](https://github.com/seanbreckenridge/bgproc/blob/master/bgproc_on_machine) uses multiple directories to organize different jobs. That uses on_machine internally like:
 
-TODO: ADD LINK TO bgproc_on_machine
+```bash
+MATCHES=()
+while read -r -d $'\0' match; do
+	MATCHES+=("$match")
+done < <(on_machine -cmd match -print0 -filter dir -base "$base" '%o/%d')
+```
 
-(For a real example, see [here](https://github.com/seanbreckenridge/HPI-personal/tree/master/jobs))
+... which figures out which directories/scripts to include when running jobs:
 
 ```
-TODO: ADD EXAMPLE USING -PRINT0 FLAG TO LOOP OVER RESULTS
+$ bgproc_on_machine -o
+1655993990:Searching for jobs in:
+1655993990:/home/sean/data/jobs/all
+1655993990:/home/sean/data/jobs/linux
+1655993990:/home/sean/.local/scripts/supervisor_jobs/all
+1655993990:/home/sean/.local/scripts/supervisor_jobs/linux
+1655993990:/home/sean/Repos/HPI-personal/jobs/all
+1655993990:/home/sean/Repos/HPI-personal/jobs/linux
 ```
+
+For a real example of one of these directory structures, see [my HPI jobs](https://github.com/seanbreckenridge/HPI-personal/tree/master/jobs)
 
 If the pattern includes an extension, this extracts that and tries to match at each level going down. For example, I use this in my `~/.zshrc` setup. I want some code that runs everywhere (`all.zsh`), some that runs on `android`, some that runs on `linux`, and then additional code that runs on `linux` and `arch`. So, given:
 
