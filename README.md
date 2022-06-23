@@ -53,19 +53,49 @@ sudo cp ./on_machine /usr/local/bin
 ## Usage
 
 ```
-usage: on_machine [-h] [PATTERN]
+usage: on_machine [-h] [-cmd <print|match>] [OPTIONS] [PATTERN]
 
 Tool to determine which operating system/machine you're on.
 
+Commands:
+print [default]: prints the resulting pattern after interpolating the pattern
+match: does directory/path matching based on the pattern, changes the default pattern to '%o/%d/%h'
+
+print
+---
 PATTERN is a printf-styled format string, supporting the following sequences:
 
 %o - Operating System (using uname)
-%d - Distro (using lsb_release, falling back to uname if lsb_release isnt available)
+%d - Distro (using lsb_release)
 %h - Hostname (name of the computer)
 %a - Arch (detected by golang)
 %O - Golang OS (unmodified golang detected operating system)
 
 By default, this uses '%o_%d_%h'
+
+match
+---
+Directory/path matching, Uses the pattern to match directory structures.
+Can provide the base path to use with -base, that replaces '/' with
+OS-specific path separator in the pattern. For more information, see the docs:
+https://github.com/seanbreckenridge/on_machine
+
+Options:
+
+  -base string
+    	Base directory to use to match paths
+  -cmd string
+    	on_machine command to run (default "print")
+  -delimiter string
+    	delimiter to print between matches (default "\n")
+  -filter string
+    	filter matches to either 'dir' or 'file'
+  -json
+    	print results as a JSON array
+  -print0
+    	use the null character as the delimiter
+  -skip-last-delim
+    	dont print the delimiter after the last match
 ```
 
 ### match
