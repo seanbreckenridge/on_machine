@@ -22,10 +22,16 @@ type OnMachineConfig struct {
 
 func parseFlags() (*OnMachineConfig, error) {
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, `usage: on_machine [-h] [PATTERN]
+		fmt.Fprintln(os.Stderr, `usage: on_machine [-h] [-cmd <print|match>] [OPTIONS] [PATTERN]
 
 Tool to determine which operating system/machine you're on.
 
+Commands:
+print [default]: prints the resulting pattern after interpolating the pattern
+match: does directory/path matching based on the pattern, changes the default pattern to '%o/%d/%h'
+
+print
+---
 PATTERN is a printf-styled format string, supporting the following sequences:
 
 %o - Operating System (using uname)
@@ -36,32 +42,55 @@ PATTERN is a printf-styled format string, supporting the following sequences:
 
 By default, this uses '%o_%d_%h'
 
--match-paths changes the default pattern to '%o/%d', and uses that pattern to
-match directory structures. It expects the directory to use as the 'base'
-as the first path, and replaces '/' with the directory separator in the pattern
-'
+match
+---
+Directory/path matching, Uses the pattern to match directory structures.
+Can provide the base path to use with -base, that replaces '/' with
+OS-specific path separator in the pattern. For more information, see the docs:
+https://github.com/seanbreckenridge/on_machine
+
+Options:
 `)
 		flag.PrintDefaults()
 	}
-	matchPaths := flag.String("match-paths", "", "Base directory to use to match paths")
+	cmd := flag.String("cmd", "print", "on_machine command to run")
+	base := flag.String("base", "", "Base directory to use to match paths")
 	flag.Parse()
 	var pattern string
-	command := PRINT
-	matchBase := *matchPaths
-	if matchBase != "" {
+	// parse command
+	var command Command
+	switch *cmd {
+	case "print":
+		command = PRINT
+	case "match":
 		command = MATCH_PATHS
-		pattern = "%o/%d"
-		matchBase = *matchPaths
-		if !on_machine.DirExists(matchBase) {
-			fmt.Fprintf(os.Stderr, "Directory doesnt exist: '%s'\n", matchBase)
-			os.Exit(1)
-		}
+	default:
+		fmt.Printf("Unknown command '%s'. Provide either 'print' or 'match'\n", *cmd)
+		os.Exit(1)
 	}
+	// set pattern
 	switch flag.NArg() {
 	case 1:
 		pattern = flag.Arg(0)
 	default:
-		pattern = "%o_%d_%h"
+		// set default pattern
+		switch command {
+		case PRINT:
+			pattern = "%o_%d_%h"
+		case MATCH_PATHS:
+			pattern = "%o/%d/%h"
+		}
+	}
+	// match based parsing
+	var matchBase string
+	if command == MATCH_PATHS {
+		matchBase = string(*base)
+		if matchBase != "" {
+			if !on_machine.DirExists(matchBase) {
+				fmt.Fprintf(os.Stderr, "Directory doesnt exist: '%s'\n", matchBase)
+				os.Exit(1)
+			}
+		}
 	}
 	return &OnMachineConfig{
 		pattern:      pattern,

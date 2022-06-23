@@ -68,7 +68,7 @@ PATTERN is a printf-styled format string, supporting the following sequences:
 By default, this uses '%o_%d_%h'
 ```
 
-### `-match-paths`
+### `match `
 
 This can be thought of as an alternative to the above, its a different way to figure out what code to run on different machines, by placing scripts in a particular directory structure
 
@@ -94,10 +94,10 @@ matching_examples/dir_based
     └── on_mac
 ```
 
-Then, say my hostname is `home`, and I'm on my `arch` machine. `-match-paths` computes the following:
+Then, say my hostname is `home`, and I'm on my `arch` machine. The `match` command computes the following:
 
 ```bash
-$ on_machine -match-paths ./matching_examples/dir_based '%o/%d/%h'
+$ on_machine -cmd match -base ./matching_examples/dir_based '%o/%d/%h'
 /home/sean/Repos/on_machine/matching_examples/dir_based/all
 /home/sean/Repos/on_machine/matching_examples/dir_based/linux
 /home/sean/Repos/on_machine/matching_examples/dir_based/linux/arch
@@ -131,8 +131,8 @@ If the pattern includes an extension, this extracts that and tries to match at e
 
 On my arch machine, using the pattern `%o/%d.zsh`, this matches:
 
-```
-$ on_machine -match-paths ./matching_examples/with_extensions '%o/%d.zsh
+```bash
+$ on_machine -cmd match -base ./matching_examples/with_extensions '%o/%d.zsh
 /home/sean/Repos/on_machine/matching_examples/with_extensions/all.zsh
 /home/sean/Repos/on_machine/matching_examples/with_extensions/linux
 /home/sean/Repos/on_machine/matching_examples/with_extensions/linux/arch.zsh
