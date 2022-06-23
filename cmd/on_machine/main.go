@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/seanbreckenridge/on_machine"
@@ -14,10 +15,17 @@ const (
 
 type Command = int
 
+type MatchConfig struct {
+	base      string
+	delimiter string
+	json      bool
+	skiplast  bool
+}
+
 type OnMachineConfig struct {
-	pattern      string
-	matchBaseDir string
-	command      Command
+	pattern   string
+	command   Command
+	matchConf *MatchConfig
 }
 
 func parseFlags() (*OnMachineConfig, error) {
@@ -55,6 +63,13 @@ Options:
 	}
 	cmd := flag.String("cmd", "print", "on_machine command to run")
 	base := flag.String("base", "", "Base directory to use to match paths")
+	printJson := flag.Bool("json", false, "print results as a JSON array")
+	delimiter := flag.String("delimiter", "\n", "delimiter to print between matches")
+	// this is false by default because including a new line as the last delimiter
+	// works better for processing lines in the shell
+	skiplast := flag.Bool("skip-last-delim", false, "dont print the delimiter after the last match")
+	nullchar := flag.Bool("print0", false, "use the null character as the delimiter")
+
 	flag.Parse()
 	var pattern string
 	// parse command
@@ -82,20 +97,32 @@ Options:
 		}
 	}
 	// match based parsing
-	var matchBase string
+
+	var matchConfig *MatchConfig = nil
 	if command == MATCH_PATHS {
-		matchBase = string(*base)
+		matchBase := string(*base)
 		if matchBase != "" {
 			if !on_machine.DirExists(matchBase) {
 				fmt.Fprintf(os.Stderr, "Directory doesnt exist: '%s'\n", matchBase)
 				os.Exit(1)
 			}
 		}
+		// handle delimiter flag
+		delim := *delimiter
+		if *nullchar {
+			delim = "\000"
+		}
+		matchConfig = &MatchConfig{
+			base:      matchBase,
+			delimiter: delim,
+			skiplast:  *skiplast,
+			json:      *printJson,
+		}
 	}
 	return &OnMachineConfig{
-		pattern:      pattern,
-		command:      command,
-		matchBaseDir: matchBase,
+		pattern:   pattern,
+		command:   command,
+		matchConf: matchConfig,
 	}, nil
 }
 
@@ -109,8 +136,26 @@ func run() error {
 		res := on_machine.ReplaceFields(conf.pattern)
 		fmt.Println(res)
 	case MATCH_PATHS:
-		matched, _ := on_machine.MatchPaths(conf.pattern, conf.matchBaseDir)
-		fmt.Printf("%+v\n", matched)
+		matched, _ := on_machine.MatchPaths(conf.pattern, conf.matchConf.base)
+		// print to STDOUT
+		if conf.matchConf.json {
+			jsonBytes, err := json.Marshal(matched)
+			if err != nil {
+				return err
+			}
+			fmt.Print(string(jsonBytes))
+		} else {
+			for i, p := range matched {
+				fmt.Print(p)
+				if i != len(matched)-1 {
+					fmt.Print(conf.matchConf.delimiter)
+				} else {
+					if !conf.matchConf.skiplast {
+						fmt.Print(conf.matchConf.delimiter)
+					}
+				}
+			}
+		}
 	}
 	return nil
 }
