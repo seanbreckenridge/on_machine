@@ -15,11 +15,20 @@ const (
 
 type Command = int
 
+const (
+	FILTER_NONE = 0
+	FILTER_DIR  = 1
+	FILTER_FILE = 2
+)
+
+type FilterType = int
+
 type MatchConfig struct {
-	base      string
-	delimiter string
-	json      bool
-	skiplast  bool
+	base       string
+	delimiter  string
+	json       bool
+	skiplast   bool
+	filtertype FilterType
 }
 
 type OnMachineConfig struct {
@@ -65,6 +74,7 @@ Options:
 	base := flag.String("base", "", "Base directory to use to match paths")
 	printJson := flag.Bool("json", false, "print results as a JSON array")
 	delimiter := flag.String("delimiter", "\n", "delimiter to print between matches")
+	filterRaw := flag.String("filter", "", "filter matches to either 'dir' or 'file'")
 	// this is false by default because including a new line as the last delimiter
 	// works better for processing lines in the shell
 	skiplast := flag.Bool("skip-last-delim", false, "dont print the delimiter after the last match")
@@ -112,11 +122,25 @@ Options:
 		if *nullchar {
 			delim = "\000"
 		}
+		// filter types
+		var filterType FilterType
+		switch *filterRaw {
+		case "":
+			filterType = FILTER_NONE
+		case "file":
+			filterType = FILTER_FILE
+		case "dir":
+			filterType = FILTER_DIR
+		default:
+			fmt.Printf("Unknown filter type '%s', expected 'file' or 'dir'\n", *filterRaw)
+
+		}
 		matchConfig = &MatchConfig{
-			base:      matchBase,
-			delimiter: delim,
-			skiplast:  *skiplast,
-			json:      *printJson,
+			base:       matchBase,
+			delimiter:  delim,
+			skiplast:   *skiplast,
+			json:       *printJson,
+			filtertype: filterType,
 		}
 	}
 	return &OnMachineConfig{
@@ -124,6 +148,29 @@ Options:
 		command:   command,
 		matchConf: matchConfig,
 	}, nil
+}
+
+func filterPaths(matches []string, filter FilterType) []string {
+	if filter == FILTER_NONE {
+		return matches
+	}
+	var res []string
+	for _, pth := range matches {
+		stat, err := os.Stat(pth)
+		if err != nil {
+			continue
+		}
+		if filter == FILTER_DIR {
+			if stat.IsDir() {
+				res = append(res, pth)
+			}
+		} else if filter == FILTER_FILE {
+			if stat.Mode().IsRegular() {
+				res = append(res, pth)
+			}
+		}
+	}
+	return res
 }
 
 func run() error {
@@ -137,6 +184,7 @@ func run() error {
 		fmt.Println(res)
 	case MATCH_PATHS:
 		matched, _ := on_machine.MatchPaths(conf.pattern, conf.matchConf.base)
+		matched = filterPaths(matched, conf.matchConf.filtertype)
 		// print to STDOUT
 		if conf.matchConf.json {
 			jsonBytes, err := json.Marshal(matched)

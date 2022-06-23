@@ -132,14 +132,11 @@ If the pattern includes an extension, this extracts that and tries to match at e
 On my arch machine, using the pattern `%o/%d.zsh`, this matches:
 
 ```bash
-$ on_machine -cmd match -base ./matching_examples/with_extensions '%o/%d.zsh
+$ on_machine -cmd match -base ./matching_examples/with_extensions -filter file '%o/%d.zsh
 /home/sean/Repos/on_machine/matching_examples/with_extensions/all.zsh
-/home/sean/Repos/on_machine/matching_examples/with_extensions/linux
 /home/sean/Repos/on_machine/matching_examples/with_extensions/linux/arch.zsh
 /home/sean/Repos/on_machine/matching_examples/with_extensions/linux.zsh
 ```
-
-That does (purposefully, incase you want it) include the `linux` directory, but that can just be filtered later in bash with a quick `[[ -f "$pth" ]]` check before sourcing each `.zsh` file.
 
 Essentially, this lets me pick what scripts to run organized as a directory, instead of ever-growing `case` statement in a `bash` script somewhere.
 
