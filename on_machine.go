@@ -46,7 +46,7 @@ func GetOS() string {
 			return "windows"
 		}
 	}
-	return os
+	return strings.ToLower(os)
 }
 
 func GetDistro() (distro string) {
