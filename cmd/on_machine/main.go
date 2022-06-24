@@ -45,7 +45,7 @@ func parseFlags() (*OnMachineConfig, error) {
 Tool to determine which operating system/machine you're on.
 
 Commands:
-print [default]: prints the resulting pattern after interpolating the pattern
+print [default]: prints the computed fingerprint after interpolating the pattern '%o_%d_%h'
 match: does directory/path matching based on the pattern, changes the default pattern to '%o/%d/%h'
 
 print
@@ -72,8 +72,8 @@ Options:
 		flag.PrintDefaults()
 	}
 	cmd := flag.String("cmd", "print", "on_machine command to run")
-	base := flag.String("base", "", "Base directory to use to match paths")
-	printJson := flag.Bool("json", false, "print results as a JSON array")
+	base := flag.String("base", "", "base directory to use to match paths")
+	printJson := flag.Bool("json", false, "print matches as a JSON array")
 	delimiter := flag.String("delimiter", "\n", "delimiter to print between matches")
 	filterRaw := flag.String("filter", "", "filter matches to either 'dir' or 'file'")
 	// this is false by default because including a new line as the last delimiter
@@ -179,10 +179,12 @@ func run() error {
 	}
 	switch conf.command {
 	case PRINT:
-		res := on_machine.ReplaceFields(conf.pattern)
-		fmt.Println(res)
+		fmt.Println(on_machine.ReplaceFields(conf.pattern))
 	case MATCH_PATHS:
-		matched, _ := on_machine.MatchPaths(conf.pattern, conf.matchConf.base)
+		matched, err := on_machine.MatchPaths(conf.pattern, conf.matchConf.base)
+		if err != nil {
+			return err
+		}
 		matched = filterPaths(matched, conf.matchConf.filtertype)
 		// print to STDOUT
 		if conf.matchConf.json {

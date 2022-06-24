@@ -58,7 +58,7 @@ usage: on_machine [-h] [-cmd <print|match>] [OPTIONS] [PATTERN]
 Tool to determine which operating system/machine you're on.
 
 Commands:
-print [default]: prints the resulting pattern after interpolating the pattern
+print [default]: prints the computed fingerprint after interpolating the pattern '%o_%d_%h'
 match: does directory/path matching based on the pattern, changes the default pattern to '%o/%d/%h'
 
 print
@@ -83,7 +83,7 @@ https://github.com/seanbreckenridge/on_machine
 Options:
 
   -base string
-    	Base directory to use to match paths
+    	base directory to use to match paths
   -cmd string
     	on_machine command to run (default "print")
   -delimiter string
@@ -91,7 +91,7 @@ Options:
   -filter string
     	filter matches to either 'dir' or 'file'
   -json
-    	print results as a JSON array
+    	print matches as a JSON array
   -print0
     	use the null character as the delimiter
   -skip-last-delim
