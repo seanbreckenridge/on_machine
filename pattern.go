@@ -31,11 +31,11 @@ func replaceField(pat string) (string, error) {
 }
 
 func ReplaceFields(pattern string) string {
-	var sb strings.Builder
 	// if length 0 or 1, returns pattern
 	if len(pattern) <= 1 {
 		return pattern
 	}
+	var sb strings.Builder
 	i := 0
 	for i < len(pattern) {
 		// make sure we don't go out of bounds

@@ -49,19 +49,19 @@ func GetOS() string {
 	return strings.ToLower(os)
 }
 
-func GetDistro() (distro string) {
-	uname, _ := UnameSh()
-	lsbRelease, _ := LsbReleaseSh()
-	distro = "unknown"
-	if lsbRelease != nil {
-		distro = *lsbRelease
-	} else if uname != nil {
-		distro = uname.version
-	}
+func GetDistro() string {
 	if OnTermux() {
 		return "termux"
 	}
-	return
+	lsbRelease, _ := LsbReleaseSh()
+	if lsbRelease != nil {
+		return *lsbRelease
+	}
+	uname, _ := UnameSh()
+	if uname != nil {
+		return uname.version
+	}
+	return "unknown"
 }
 
 func Hostname() (*string, error) {
@@ -84,6 +84,6 @@ func GetHostname() string {
 	if err == nil {
 		return *host
 	} else {
-		return ""
+		return "unknown"
 	}
 }
