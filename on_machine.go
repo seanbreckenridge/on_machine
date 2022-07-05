@@ -20,6 +20,18 @@ func GetOS() string {
 	res, err, _ := Cache.Memoize("os", func() (interface{}, error) {
 		os := GetGolangOS()
 		uname, _ := UnameSh()
+		if strings.Contains(strings.ToLower(uname.version), "microsoft") {
+			return "windows", nil
+		}
+		if ok, _ := PathExists("/proc/version"); ok {
+			contents, err := ioutil.ReadFile("/proc/version")
+			if err != nil {
+				version := string(contents)
+				if strings.Contains(strings.ToLower(version), "microsoft") {
+					return "windows", nil
+				}
+			}
+		}
 		if uname != nil {
 			// ported from neofetch
 			switch uname.name {
@@ -47,18 +59,6 @@ func GetOS() string {
 			}
 			if strings.HasPrefix(uname.name, "CYGWIN") || strings.HasPrefix(uname.name, "MSYS") || strings.HasPrefix(uname.name, "MINGW") {
 				return "windows", nil
-			}
-		}
-		if strings.Contains(strings.ToLower(uname.version), "microsoft") {
-			return "windows", nil
-		}
-		if ok, _ := PathExists("/proc/version"); ok {
-			contents, err := ioutil.ReadFile("/proc/version")
-			if err != nil {
-				version := string(contents)
-				if strings.Contains(strings.ToLower(version), "microsoft") {
-					return "windows", nil
-				}
 			}
 		}
 		return strings.ToLower(os), nil
