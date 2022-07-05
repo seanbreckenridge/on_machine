@@ -1,6 +1,7 @@
 package on_machine
 
 import (
+	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
@@ -15,43 +16,67 @@ func GetGolangArch() string {
 }
 
 func GetOS() string {
-	os := GetGolangOS()
-	uname, _ := UnameSh()
-	if uname != nil {
-		// ported from neofetch
-		switch uname.name {
-		case "Darwin":
-			return "mac"
-		case "SunOS":
-			return "solaris"
-		case "Haiku":
-			return "haiku"
-		case "AIX":
-			return "aix"
-		case "MINIX":
-			return "minix"
-		case "FreeMiNT":
-			return "freemint"
-		}
-		if uname.name == "Linux" || strings.HasPrefix(uname.name, "GNU") {
-			if OnTermux() {
-				return "android"
+
+	res, err, _ := Cache.Memoize("os", func() (interface{}, error) {
+		os := GetGolangOS()
+		uname, _ := UnameSh()
+		if uname != nil {
+			// ported from neofetch
+			switch uname.name {
+			case "Darwin":
+				return "mac", nil
+			case "SunOS":
+				return "solaris", nil
+			case "Haiku":
+				return "haiku", nil
+			case "AIX":
+				return "aix", nil
+			case "MINIX":
+				return "minix", nil
+			case "FreeMiNT":
+				return "freemint", nil
 			}
-			return "linux"
+			if uname.name == "Linux" || strings.HasPrefix(uname.name, "GNU") {
+				if OnTermux() {
+					return "android", nil
+				}
+				return "linux", nil
+			}
+			if uname.name == "DragonFly" || uname.name == "Bitrig" || strings.HasSuffix(uname.name, "BSD") {
+				return "bsd", nil
+			}
+			if strings.HasPrefix(uname.name, "CYGWIN") || strings.HasPrefix(uname.name, "MSYS") || strings.HasPrefix(uname.name, "MINGW") {
+				return "windows", nil
+			}
 		}
-		if uname.name == "DragonFly" || uname.name == "Bitrig" || strings.HasSuffix(uname.name, "BSD") {
-			return "bsd"
+		if strings.Contains(strings.ToLower(uname.version), "microsoft") {
+			return "windows", nil
 		}
-		if strings.HasPrefix(uname.name, "CYGWIN") || strings.HasPrefix(uname.name, "MSYS") || strings.HasPrefix(uname.name, "MINGW") {
-			return "windows"
+		if ok, _ := PathExists("/proc/version"); ok {
+			contents, err := ioutil.ReadFile("/proc/version")
+			if err != nil {
+				version := string(contents)
+				if strings.Contains(strings.ToLower(version), "microsoft") {
+					return "windows", nil
+				}
+			}
 		}
+		return strings.ToLower(os), nil
+	})
+	if castRes, ok := res.(string); ok {
+		return castRes
+	} else {
+		panic(err)
 	}
-	return strings.ToLower(os)
 }
 
 func GetDistro() string {
 	if OnTermux() {
 		return "termux"
+	}
+	if GetOS() == "windows" {
+		// I can't see a case where this is detected as windows but not in WSL?
+		return "wsl"
 	}
 	lsbRelease, _ := LsbReleaseSh()
 	if lsbRelease != nil {
