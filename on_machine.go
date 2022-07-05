@@ -20,7 +20,7 @@ func GetOS() string {
 	res, err, _ := Cache.Memoize("os", func() (interface{}, error) {
 		os := GetGolangOS()
 		uname, _ := UnameSh()
-		if strings.Contains(strings.ToLower(uname.version), "microsoft") {
+		if uname != nil && strings.Contains(strings.ToLower(uname.version), "microsoft") {
 			return "windows", nil
 		}
 		if ok, _ := PathExists("/proc/version"); ok {
