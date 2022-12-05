@@ -160,7 +160,7 @@ $ bgproc_on_machine -o
 
 For a real example of one of these directory structures, see [my HPI jobs](https://github.com/seanbreckenridge/HPI-personal/tree/master/jobs)
 
-If the pattern includes an extension, this extracts that and tries to match at each level going down. For example, I use this in my `~/.zshrc` setup. I want some code that runs everywhere (`all.zsh`), some that runs on `android`, some that runs on `linux`, and then additional code that runs on `linux` and `arch`. So, given:
+If the pattern includes an extension, this extracts that and tries to match at each level going down. For example, for setting up your `~/.zshrc` setup: I want some code that runs everywhere (`all.zsh`), some that runs on `android`, some that runs on `linux`, and then additional code that runs on `linux` and `arch`. So, given:
 
 ```
 ./matching_examples/with_extensions
