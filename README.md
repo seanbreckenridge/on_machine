@@ -120,9 +120,7 @@ Sometimes the `hostname` cannot be determined (e.g. on android), so if you'd lik
 
 ```bash
 ON_OS="$(on_machine)"
-if [[ "$ON_OS" == "^android_" ]]; then
-  export ON_MACHINE_HOSTNAME="phone"
-fi
+[[ "$ON_OS" =~ ^android.* ]] && export ON_MACHINE_HOSTNAME="phone"
 ```
 
 ```bash
