@@ -118,7 +118,7 @@ esac
 
 Sometimes the `hostname` cannot be determined (e.g. on android), so if you'd like you can set something custom, you can use the `ON_MACHINE_HOSTNAME`, e.g., in your shell startup:
 
-````bash
+```bash
 ON_OS="$(on_machine)"
 if [[ "$ON_OS" == "^android_" ]]; then
   export ON_MACHINE_HOSTNAME="phone"
