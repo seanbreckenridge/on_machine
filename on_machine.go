@@ -91,6 +91,11 @@ func GetDistro() string {
 
 func Hostname() (*string, error) {
 	res, err, _ := Cache.Memoize("hostname", func() (interface{}, error) {
+		// if user set ON_MACHINE_HOSTNAME, use that
+		envHostname := strings.TrimSpace(os.Getenv("ON_MACHINE_HOSTNAME"))
+		if envHostname != "" {
+			return envHostname, nil
+		}
 		name, err := os.Hostname()
 		if err != nil {
 			return nil, err

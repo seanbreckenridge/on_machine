@@ -98,6 +98,38 @@ Options:
     	dont print the delimiter after the last match
 ```
 
+For basic usage, can just run `on_machine` with no arguments, using a `case` statements
+
+```bash
+case "$(on_machine)" in
+  linux_arch_*) command_on_arch ;;
+  linux_ubuntu_*) command_on_ubuntu ;;
+  android_termux_*) command_on_termux ;;
+  windows_*) command_on_wsl ;;
+  mac_*) command_on_mac ;;
+esac
+
+# or, for example, to skip running a command on android and run everywhere else
+case "$(on_machine)" in
+  android_*) ;;
+  *) command_to_run_everywhere_else ;;
+esac
+```
+
+Sometimes the `hostname` cannot be determined (e.g. on android), so if you'd like you can set something custom, you can use the `ON_MACHINE_HOSTNAME`, e.g., in your shell startup:
+
+````bash
+ON_OS="$(on_machine)"
+if [[ "$ON_OS" == "^android_" ]]; then
+  export ON_MACHINE_HOSTNAME="phone"
+fi
+```
+
+```bash
+$ on_machine
+android_termux_phone
+```
+
 ### match
 
 This can be thought of as an alternative to the above, its a different way to figure out what code to run on different machines, by placing scripts in a particular directory structure
