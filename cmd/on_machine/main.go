@@ -113,7 +113,7 @@ Options:
 		matchBase := string(*base)
 		if matchBase != "" {
 			if !on_machine.DirExists(matchBase) {
-				return nil, errors.New(fmt.Sprintf("Directory doesnt exist: '%s'\n", matchBase))
+				return nil, errors.New(fmt.Sprintf("Directory doesn't exist: '%s'\n", matchBase))
 			}
 		}
 		// handle delimiter flag

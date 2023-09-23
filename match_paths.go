@@ -9,7 +9,7 @@ import (
 
 func matchIgnoreExtensions(currentTarget string, base string, pathName string, ext string) []string {
 	matches := make([]string, 0)
-	// since the currentTarget (pattern) cant include an extension, since we extracted it into
+	// since the currentTarget (pattern) can't include an extension, since we extracted it into
 	// ext in MatchPaths, this is matching a directory
 	baseWithExt := filepath.Join(base, pathName)
 	if pathName == currentTarget {
@@ -46,7 +46,7 @@ func matchRecurHelper(targetsRendered []string, currentDepth int, currentBase st
 		return matches, nil
 	}
 	if currentDepth > len(targetsRendered)-1 {
-		// if we cant index into the targetsRendered anymore, that means we've passed the depth this allows
+		// if we can't index into the targetsRendered anymore, that means we've passed the depth this allows
 		return matches, nil
 	}
 	currentTarget := targetsRendered[currentDepth]
